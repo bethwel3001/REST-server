@@ -19,7 +19,7 @@ export default function useTasks() {
       setTasks(response.data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch tasks');
+      setError('Failed to fetch tasks. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -34,7 +34,7 @@ export default function useTasks() {
       });
       setTasks([...tasks, response.data]);
     } catch (err) {
-      setError('Failed to add task');
+      setError('Failed to add task.');
       console.error(err);
     }
   };
@@ -47,7 +47,7 @@ export default function useTasks() {
       });
       fetchTasks();
     } catch (err) {
-      setError('Failed to update task');
+      setError('Failed to update task.');
       console.error(err);
     }
   };
@@ -57,7 +57,7 @@ export default function useTasks() {
       await axios.delete(`${API_URL}/${id}`);
       setTasks(tasks.filter(task => task.id !== id));
     } catch (err) {
-      setError('Failed to delete task');
+      setError('Failed to delete task.');
       console.error(err);
     }
   };
