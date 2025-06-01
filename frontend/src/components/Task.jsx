@@ -1,37 +1,87 @@
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+import ReactConfetti from 'react-confetti';
+import { CheckIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { useEffect } from 'react';
 export default function Task({ task, onToggle, onDelete }) {
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  const handleToggle = () => {
+    const wasCompleted = task.completed;
+    onToggle(task.id);
+    
+    if (!wasCompleted) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+    }
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <div className={`flex items-center justify-between p-4 mb-2 rounded-lg transition-colors duration-200 ${
-      task.completed 
-        ? 'bg-green-50 border border-green-100' 
-        : 'bg-white border border-gray-200 hover:bg-gray-50'
-    }`}>
-      <div className="flex items-center">
-        <button
-          onClick={() => onToggle(task.id)}
-          className={`w-5 h-5 rounded-full mr-3 flex items-center justify-center ${
-            task.completed 
-              ? 'bg-green-500 text-white' 
-              : 'border-2 border-gray-300'
-          }`}
-        >
-          {task.completed && (
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          )}
-        </button>
-        <span className={`${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-          {task.title}
-        </span>
-      </div>
-      <button
-        onClick={() => onDelete(task.id)}
-        className="text-gray-400 hover:text-red-500 transition-colors"
+    <>
+      {showConfetti && (
+        <ReactConfetti
+          width={windowSize.width}
+          height={windowSize.height}
+          recycle={false}
+          numberOfPieces={200}
+        />
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, x: -100 }}
+        transition={{ duration: 0.3 }}
+        className={`flex items-center justify-between p-4 mb-3 rounded-lg shadow-sm transition-all duration-200 ${
+          task.completed
+            ? 'bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800'
+            : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+        }`}
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-        </svg>
-      </button>
-    </div>
+        <div className="flex items-center">
+          <button
+            onClick={handleToggle}
+            className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center transition-colors ${
+              task.completed
+                ? 'bg-green-500 text-white hover:bg-green-600'
+                : 'border-2 border-gray-300 dark:border-gray-500 hover:border-gray-400'
+            }`}
+          >
+            {task.completed && <CheckIcon className="h-4 w-4" />}
+          </button>
+          <span
+            className={`${
+              task.completed
+                ? 'line-through text-gray-500 dark:text-gray-400'
+                : 'text-gray-800 dark:text-gray-100'
+            }`}
+          >
+            {task.title}
+          </span>
+        </div>
+        <button
+          onClick={() => onDelete(task.id)}
+          className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+        >
+          <TrashIcon className="h-5 w-5" />
+        </button>
+      </motion.div>
+    </>
   );
 }
